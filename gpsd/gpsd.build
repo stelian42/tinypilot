@@ -50,6 +50,7 @@ export CFLAGS="-Os -march=armv6zk -mtune=arm1176jzf-s -mfpu=vfp"
 export CXXFLAGS="-Os -march=armv6zk -mtune=arm1176jzf-s -mfpu=vfp"
 
 cd $WRKDIR
+patch -p1 < ../gpsd.patch
 
 # Compile
 # Install in base temp dir
