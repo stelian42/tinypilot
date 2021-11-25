@@ -1,201 +1,31 @@
---- gpsd-3.20.orig/SConstruct
-+++ gpsd-3.20/SConstruct
-@@ -226,7 +226,7 @@
-     ("squelch",       False, "squelch gpsd_log/gpsd_hexdump to save cpu"),
+--- gpsd-3.23.1.orig/SConscript
++++ gpsd-3.23.1/SConscript
+@@ -347,7 +347,7 @@
      # Build control
      ("coveraging",    False, "build with code coveraging enabled"),
--    ("debug",         False, "include debug information in build"),
-+    ("debug",         True, "include debug information in build"),
+     ("debug",         False, "add debug information to build, unoptimized"),
+-    ("debug_opt",     False, "add debug information to build, optimized"),
++    ("debug_opt",     True, "add debug information to build, optimized"),
      ("gpsdclients",   True,  "gspd client programs"),
      ("gpsd",          True,  "gpsd itself"),
      ("implicit_link", imloads, "implicit linkage is supported in shared libs"),
-@@ -236,7 +236,7 @@
-     ("minimal", False, "turn off every option not set on the command line"),
-     ("nostrip",       False, "don't symbol-strip binaries at link time"),
-     ("profiling",     False, "build with profiling enabled"),
--    ("python",        True,  "build Python support and modules."),
-+    ("python",        False,  "build Python support and modules."),
-     ("shared",        True,  "build shared libraries, not static"),
-     ("timeservice",   False, "time-service configuration"),
-     ("xgps",          True,  "include xgps and xgpsspeed."),
---- gpsd-3.20.orig/gpsd.c
-+++ gpsd-3.20/gpsd.c
-@@ -92,7 +92,7 @@
- #define COMMAND_TIMEOUT		60*15
- #define NOREAD_TIMEOUT		60*3
- #define RELEASE_TIMEOUT		60
--#define DEVICE_REAWAKE		0.01
-+#define DEVICE_REAWAKE		0.1
- #define DEVICE_RECONNECT	2
+@@ -388,7 +388,7 @@
+     rundir = "/var/run"
  
- #define QLEN			5
-@@ -1686,7 +1686,12 @@
- 			(void)throttled_write(sub, buf, strlen(buf));
+ nonboolopts = (
+-    ("gpsd_group",       def_group,     "privilege revocation group"),
++    ("gpsd_group",       "staff",       "privilege revocation group"),
+     ("gpsd_user",        "nobody",      "privilege revocation user",),
+     ("manbuild",         "auto",
+      "build help in man and HTML formats.  No/Auto/Yes."),
+--- gpsd-3.23.1.orig/gpsd/gpsd.c
++++ gpsd-3.23.1/gpsd/gpsd.c
+@@ -98,7 +98,7 @@
+ #define COMMAND_TIMEOUT         60*15
+ #define NOREAD_TIMEOUT          60*3
+ #define RELEASE_TIMEOUT         60
+-#define DEVICE_REAWAKE          0.01
++#define DEVICE_REAWAKE          0.1
+ #define DEVICE_RECONNECT        2
  
- 		}
--	    }
-+	    } else {
-+                //struct timespec delay;
-+                //delay.tv_sec = 0;
-+                //delay.tv_nsec = 250000000L;
-+                //nanosleep(&delay, NULL);
-+            }
- 	}
-     } /* subscribers */
- #endif /* SOCKET_EXPORT_ENABLE */
---- gpsd-3.20.orig/gpsd_config.h
-+++ gpsd-3.20/gpsd_config.h
-@@ -22,15 +22,15 @@
- #define _GNU_SOURCE 1
- #endif
- 
--#define HAVE_LIBUSB 1
-+/* #undef HAVE_LIBUSB */
- 
- #define HAVE_LIBRT 1
- 
- /* #undef HAVE_LIBTHR */
- 
--#define HAVE_DBUS 1
-+/* #undef HAVE_DBUS */
- 
--#define ENABLE_BLUEZ 1
-+/* #undef ENABLE_BLUEZ */
- 
- #define HAVE_LINUX_CAN_H 1
- 
-@@ -62,7 +62,7 @@
- 
- /* #undef HAVE_WINSOCK2_H */
- 
--#define SIZEOF_TIME_T 8
-+#define SIZEOF_TIME_T 4
- 
- #define HAVE_CFMAKERAW 1
- 
-@@ -86,8 +86,6 @@
- 
- #define HAVE_SINCOS
- 
--#define HAVE_SYS_TIMEPPS_H 1
--
- /* AIVDM support */
- #define AIVDM_ENABLE 1
- 
-@@ -98,7 +96,7 @@
- #define BINDIR "bin"
- 
- /* BlueZ support for Bluetooth devices */
--#define BLUEZ_ENABLE 1
-+/* #undef BLUEZ_ENABLE */
- 
- /* client debugging support */
- #define CLIENTDEBUG_ENABLE 1
-@@ -113,7 +111,7 @@
- /* #undef COVERAGING_ENABLE */
- 
- /* enable DBUS export support */
--#define DBUS_EXPORT_ENABLE 1
-+/* #undef DBUS_EXPORT_ENABLE */
- 
- /* include debug information in build */
- #define DEBUG_ENABLE 1
-@@ -152,7 +150,7 @@
- #define GPSD_ENABLE 1
- 
- /* privilege revocation group */
--#define GPSD_GROUP "uucp"
-+#define GPSD_GROUP "dialout"
- 
- /* privilege revocation user */
- #define GPSD_USER "nobody"
-@@ -182,7 +180,7 @@
- #define LIBGPSMM_ENABLE 1
- 
- /* special Linux PPS hack for Raspberry Pi et al */
--#define MAGIC_HAT_ENABLE 1
-+/* #undef MAGIC_HAT_ENABLE */
- 
- /* build help in man and HTML formats */
- #define MANBUILD_ENABLE 1
-@@ -206,7 +204,7 @@
- #define NAVCOM_ENABLE 1
- 
- /* build with ncurses */
--#define NCURSES_ENABLE 1
-+/* #undef NCURSES_ENABLE */
- 
- /* build support for handling TCP/IP data sources */
- #define NETFEED_ENABLE 1
-@@ -239,13 +237,13 @@
- #define PKGCONFIG "lib/pkgconfig"
- 
- /* installation directory prefix */
--#define PREFIX "/usr/local"
-+#define PREFIX "/tmp/gpsd/usr/local"
- 
- /* build with profiling enabled */
--#define PROFILING_ENABLE 1
-+/* #undef PROFILING_ENABLE */
- 
- /* build Python support and modules. */
--#define PYTHON_ENABLE 1
-+/* #undef PYTHON_ENABLE */
- 
- /* coverage command for Python progs */
- #define PYTHON_COVERAGE "coverage run"
-@@ -257,7 +255,7 @@
- #define QT_ENABLE 1
- 
- /* version for versioned Qt */
--#define QT_VERSIONED 5
-+/* #undef QT_VERSIONED */
- 
- /* allow gpsd to change device settings */
- #define RECONFIGURE_ENABLE 1
-@@ -302,7 +300,7 @@
- /* #undef SYSROOT */
- 
- /* systemd socket activation */
--#define SYSTEMD_ENABLE 1
-+/* #undef SYSTEMD_ENABLE */
- 
- /* cross-development target */
- /* #undef TARGET */
-@@ -333,12 +331,6 @@
- 
- /* include xgps and xgpsspeed. */
- #define XGPS_ENABLE 1
--
--/* Magic device which, if present, means to grab a static /dev/pps0 for KPPS */
--#define MAGIC_HAT_GPS   "/dev/ttyAMA0"
--/* Generic device which, if present, means: */
--/* to grab a static /dev/pps0 for KPPS */
--#define MAGIC_LINK_GPS  "/dev/gpsd0"
- 
- 
- #define GPSD_CONFIG_H
---- gpsd-3.20.orig/libgpsd_core.c
-+++ gpsd-3.20/libgpsd_core.c
-@@ -1430,7 +1430,7 @@
-     } else {
- 	newlen = generic_get(session);
-     }
--
-+    
-     /* update the scoreboard structure from the GPS */
-     GPSD_LOG(LOG_RAW + 1, &session->context->errout,
- 	     "%s sent %zd new characters\n",
-@@ -1761,6 +1761,12 @@
- 			 gps_maskdump(changed));
- 		return DEVICE_ERROR;
- 	    } else if (changed == NODATA_IS) {
-+
-+                    struct timespec delay;
-+                    delay.tv_sec = 0;
-+                    delay.tv_nsec = 150000000L;
-+                    nanosleep(&delay, NULL);
-+
- 		/*
- 		 * No data on the first fragment read means the device
- 		 * fd may have been in an end-of-file condition on select.
+ #define QLEN                    5

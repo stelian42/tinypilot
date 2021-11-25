@@ -28,7 +28,7 @@ INITIALDIR=$PWD
 
 # Remove dirs and files left from previous creation
 
-#sudo pip3.6 uninstall Flask
+#sudo pip3.8 uninstall Flask
 
 # Create temporary directory
 
@@ -40,10 +40,11 @@ mkdir -p $TMPDIR$PYTDIR
 
 # Install in place
 
-sudo pip3.6 install $PYNAM
+export TMPDIR=/mnt/mmcblk0p2/tmp
+sudo -E pip3.8 install $PYNAM
 
 # Move files to tmp dir
-
+mkdir -p $TMPDIR$PYTDIR
 cp -rf $PYTDIR/$PYNAM-*-info $PYTDIR/$NAM $PYTDIR/$NAM*py $TMPDIR$PYTDIR
 
 # Delete *.pyc files
