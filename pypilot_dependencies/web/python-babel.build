@@ -34,6 +34,7 @@ sudo pip3.8 uninstall Flask_$PYNAM
 # Create temporary directory
 
 mkdir -p $TMPDIR$PYTDIR
+mkdir -p $TMPDIR/usr/local/bin
 
 ######################################################
 # Compile extension                                  #
@@ -52,7 +53,8 @@ sudo pip3.8 install Flask_$PYNAM
 
 cp -rf $PYTDIR/pytz-*-info $PYTDIR/pytz $TMPDIR$PYTDIR
 cp -rf $PYTDIR/$PYNAM-*-info $PYTDIR/$NAM $TMPDIR$PYTDIR
-cp -rf $PYTDIR/Flask_$PYNAM-*-info $PYTDIR/flask_$NAM $TMPDIR$PYTDIR
+cp -rf $PYTDIR/flask_$NAM-*-info $PYTDIR/flask_$NAM $TMPDIR$PYTDIR
+cp -f /usr/local/bin/pybabel $TMPDIR/usr/local/bin
 
 # Delete *.pyc files
 
