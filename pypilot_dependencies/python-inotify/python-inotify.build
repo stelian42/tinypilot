@@ -1,0 +1,91 @@
+#!/bin/sh
+#
+######################################################
+# Build script for RPI                               #
+#                                                    #
+# See .info for details                              #
+#                                                    #
+# February 13, 2013                                  #
+######################################################
+
+######################################################
+# Configure extension creation parameters            #
+######################################################
+
+
+PYTHONVERSION=`cat /opt/python`
+PYTHON="python"$PYTHONVERSION
+SRCNAM=inotify-0.2.10.tar.gz
+WRKDIR=inotify-0.2.10
+EXTNAM=$PYTHON-inotify
+TMPDIR=/tmp/$PYTHON-inotify
+PYTDIR=/usr/local/lib/$PYTHON/site-packages
+
+######################################################
+# Prepare extension creation                         #
+######################################################
+
+# Remove dirs and files left from previous creation
+
+rm -r -f $PYTDIR/$EXTNAM*.egg
+
+# Create temporary directory
+
+mkdir -p $TMPDIR/$PYTDIR
+
+######################################################
+# Compile extension                                  #
+######################################################
+
+INITIALDIR=$PWD
+
+# Export variables needed for compilation
+
+export CFLAGS="-Os -pipe"
+export CXXFLAGS="-Os -pipe -fno-exceptions -fno-rtti"
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
+
+# Unpack source in current directory
+
+tar -xf $SRCNAM
+
+# Configure it
+
+cd $WRKDIR
+
+# Install in place
+
+sudo $PYTHON setup.py bdist
+tar xvf dist/*tar.gz -C $TMPDIR
+
+# Delete compilation work directory
+
+cd ..
+rm -r -f $WRKDIR
+
+# Adjust directory access rigths
+
+find $TMPDIR/ -type d | xargs chmod -v 755;
+
+###################################################
+# Create base extension in temp dir               #
+###################################################
+
+cd $TMPDIR
+cd ..
+mksquashfs $TMPDIR $EXTNAM.tcz
+cd $TMPDIR
+find usr -not -type d > $EXTNAM.tcz.list
+mv ../$EXTNAM.tcz .
+
+# Create md5 file
+
+md5sum $EXTNAM.tcz > $EXTNAM.tcz.md5.txt
+
+cp -fv $EXTNAM.tcz* /mnt/mmcblk0p2/tce/optional
+
+# Cleanup temp directory
+
+rm -rf *
+
+cd $INITIALDIR
