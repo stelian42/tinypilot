@@ -55,7 +55,7 @@ cd $WRKDIR
 
 # Install in place
 
-sudo $PYTHON setup.py bdist
+$PYTHON setup.py bdist
 tar xvf dist/*tar.gz -C $TMPDIR
 
 # Delete compilation work directory
