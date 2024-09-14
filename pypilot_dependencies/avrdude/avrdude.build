@@ -11,7 +11,7 @@
 ######################################################
 
 EXTNAM=avrdude
-WRKDIR=avrdude
+WRKDIR=avrdude-8.0
 TMPDIR=/tmp/$EXTNAM
 
 
@@ -19,7 +19,7 @@ TMPDIR=/tmp/$EXTNAM
 # Prepare extension creation                         #
 ######################################################
 
-su tc -c "tce-load -i m4 libtool autoconf automake sed grep libelf-dev bison"
+su tc -c "tce-load -i sed grep libelf-dev bison cmake ncurses-dev"
 
 # Remove dirs and files left from previous creation
 
@@ -39,16 +39,14 @@ INITIALDIR=$PWD
 
 # Export variables needed for compilation
 
-
 # Configure it
 
 cd $WRKDIR
 
 # Compile
-./bootstrap
-./configure --enable-linuxspi
-make
-make DESTDIR=$TMPDIR install
+sed -i -e "s/ncurses/ncursesw/g" CMakeLists.txt
+./build.sh -f "-DCMAKE_INSTALL_PREFIX:PATH=$TMPDIR"
+sudo cmake --build build_linux --target install 
 
 # Adjust directory access rigths
 
